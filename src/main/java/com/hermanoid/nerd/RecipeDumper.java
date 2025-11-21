@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentTranslation;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
 import com.google.gson.Gson;
@@ -118,9 +117,10 @@ public class RecipeDumper extends DataDumper {
 
     @Override
     public Iterable<String[]> dump(int mode) {
-        // This is a little crunchy, I'll admit
-        throw new NotImplementedException(
-            "Recipe Dumper overrides the base DataDumper's dumping functionality in dumpTo(file)! dump() should never be called.");
+        // DataDumper may call dump(mode) for non-file modes. This dumper only writes JSON files
+        // via dumpTo(file), so return an empty iterable for any mode rather than throwing.
+        // Accept both mode 0 and 1 (some NEI/GTNH versions pass 0 now).
+        return java.util.Collections.emptyList();
     }
 
     @Override
@@ -262,6 +262,8 @@ public class RecipeDumper extends DataDumper {
 
     @Override
     public int modeCount() {
-        return 1; // Only JSON
+        // Allow two mode values so NEI/GTNH versions that pass mode=0 or mode=1
+        // are both accepted. We still always dump JSON via dumpTo(file).
+        return 2;
     }
 }
